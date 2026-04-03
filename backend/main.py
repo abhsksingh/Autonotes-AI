@@ -3,10 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import os
 import shutil
-
 import models
 import schemas
 from database import engine, get_db
+import json
+import sys
+
+# Ensure backend directory is in path for Render imports
+basedir = os.path.dirname(os.path.abspath(__file__))
+if basedir not in sys.path:
+    sys.path.append(basedir)
 
 try:
     from openai import OpenAI, OpenAIError
@@ -34,7 +40,11 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the AI Meeting Notes API"}
+    return {"status": "ok", "message": "Welcome to the AI Meeting Notes API"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
 
 @app.post("/api/upload", response_model=schemas.Meeting)
 async def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_db)):
@@ -85,7 +95,6 @@ async def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_d
                 response_format={ "type": "json_object" }
             )
 
-            import json
             result = json.loads(response.choices[0].message.content)
             summary_text = result.get("summary", "No summary generated.")
             action_items = json.dumps(result.get("action_items", []))

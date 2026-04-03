@@ -47,7 +47,8 @@ export default function UploadPage({ onUploadComplete }) {
       setTimeout(() => setStatus('transcribing'), 1500)
       setTimeout(() => setStatus('summarizing'), 3500)
       
-      const response = await axios.post('http://localhost:8000/api/upload', formData, {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await axios.post(`${API_URL}/api/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       

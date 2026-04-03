@@ -9,16 +9,17 @@ export default function HistoryPage({ onMeetingSelect }) {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    // In a real scenario, this would fetch from backend
-    // Since backend isn't fully wired with DB, using mock data for UI visual completion
-    setTimeout(() => {
-      setMeetings([
-        { id: 1, title: 'Q3 Roadmapping Session', date: '2023-10-15T10:00:00Z', duration: 3600, filename: 'q3_roadmap.mp3' },
-        { id: 2, title: 'Weekly Sync with Engineering', date: '2023-10-12T14:30:00Z', duration: 1800, filename: 'eng_sync.wav' },
-        { id: 3, title: 'Client Pitch: Acme Corp', date: '2023-10-10T09:15:00Z', duration: 2700, filename: 'acme_pitch.mp3' },
-      ])
-      setLoading(false)
-    }, 1000)
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+    axios.get(`${API_URL}/api/meetings`)
+      .then(res => {
+        setMeetings(res.data)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error('Failed to fetch meetings:', err)
+        setMeetings([])
+        setLoading(false)
+      })
   }, [])
 
   const filteredMeetings = meetings.filter(m => 
